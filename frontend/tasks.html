@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ru">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Задачи — TaskFlow</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <link rel="stylesheet" href="/static/css/style.css">
+    </head>
+    <body class="bg-slate-900 min-h-screen">
+        <nav class="bg-slate-800/50 backdrop-blur border-b border-white/10 sticky top-0 z-50">
+            <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+                <div class="flex items-center gap-2">
+                    <span class="text-xl font-bold text-white">TaskFlow</span>
+                </div>
+                <div class="flex items-center gap-4">
+                    <span id="userGreeting" class="text-purple-300 text-sm">Привет, пользователь</span>
+                    <button id="logoutBtn" class="px-4 py-2 text-sm bg-red-500/20 hover:bg-red-500/30 text-red-300 rounded-lg transition border border-red-500/30">
+                        Выйти
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <div class="container mx-auto px-4 py-8">
+            <div class="flex flex-wrap justify-between items-center gap-4 mb-8">
+                <h2 class="text-3xl font-bold text-white">Мои задачи</h2>
+                <button id="openCreateModal" 
+                        class="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold rounded-lg transition shadow-lg shadow-purple-500/30">
+                    Новая задача
+                </button>
+            </div>
+
+            <div class="flex flex-wrap gap-2 mb-6">
+                <button class="filter-btn active px-4 py-2 bg-purple-600 text-white rounded-lg text-sm" data-filter="all">Все</button>
+                <button class="filter-btn px-4 py-2 bg-slate-700 text-slate-300 hover:bg-slate-600 rounded-lg text-sm" data-filter="todo">To Do</button>
+                <button class="filter-btn px-4 py-2 bg-slate-700 text-slate-300 hover:bg-slate-600 rounded-lg text-sm" data-filter="in_progress">In Progress</button>
+                <button class="filter-btn px-4 py-2 bg-slate-700 text-slate-300 hover:bg-slate-600 rounded-lg text-sm" data-filter="done">Done</button>
+            </div>
+
+            <div id="tasksList" class="grid gap-4"></div>
+        </div>
+
+        <div id="taskModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 hidden z-50">
+            <div class="bg-slate-800 rounded-2xl p-8 max-w-md w-full border border-white/10 shadow-2xl">
+                <h3 id="modalTitle" class="text-2xl font-bold text-white mb-4">Создать задачу</h3>
+                <form id="taskForm">
+                    <input type="hidden" id="taskId">
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-purple-200 mb-1">Название</label>
+                            <input type="text" id="taskTitle" required
+                                class="w-full px-4 py-3 bg-slate-700 border border-white/20 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:border-purple-500 transition">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-purple-200 mb-1">Описание</label>
+                            <textarea id="taskDescription" rows="3"
+                                    class="w-full px-4 py-3 bg-slate-700 border border-white/20 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:border-purple-500 transition"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-purple-200 mb-1">Статус</label>
+                            <select id="taskStatus"
+                                    class="w-full px-4 py-3 bg-slate-700 border border-white/20 rounded-lg text-white focus:outline-none focus:border-purple-500 transition">
+                                <option value="todo">To Do</option>
+                                <option value="in_progress">In Progress</option>
+                                <option value="done">Done</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-purple-200 mb-1">Дедлайн</label>
+                            <input type="date" id="taskDeadline"
+                                class="w-full px-4 py-3 bg-slate-700 border border-white/20 rounded-lg text-white focus:outline-none focus:border-purple-500 transition">
+                        </div>
+                    </div>
+                    <div class="flex gap-3 mt-6">
+                        <button type="submit" 
+                                class="flex-1 py-3 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg transition">
+                            Сохранить
+                        </button>
+                        <button type="button" id="closeModal"
+                                class="flex-1 py-3 bg-slate-700 hover:bg-slate-600 text-white font-semibold rounded-lg transition">
+                            Отмена
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <script type="module" src="/static/js/tasks-app.js"></script>
+    </body>
+</html>
