@@ -16,10 +16,6 @@ export function getAuthHeaders() {
     };
 }
 
-export function isAuthenticated() {
-    return !!localStorage.getItem('token');
-}
-
 export function redirectToLogin() {
     localStorage.removeItem('token');
     window.location.href = '/login.html';

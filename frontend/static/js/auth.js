@@ -1,4 +1,4 @@
-import { API_BASE, API_ENDPOINTS, getAuthHeaders, isAuthenticated, redirectToLogin } from './config.js';
+import { API_BASE, API_ENDPOINTS, getAuthHeaders, redirectToLogin } from './config.js';
 
 export async function login(email, password) {
     const response = await fetch(`${API_BASE}${API_ENDPOINTS.LOGIN}`, {
@@ -59,6 +59,10 @@ export function logout() {
     localStorage.removeItem('token');
     localStorage.removeItem('username');
     window.location.href = '/login.html';
+}
+
+export function isAuthenticated() {
+    return !!localStorage.getItem('token');
 }
 
 export function checkAuth() {
