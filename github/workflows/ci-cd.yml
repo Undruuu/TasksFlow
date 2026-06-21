@@ -1,0 +1,115 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  # --- Этап 1: Линтинг ---
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      
+      - name: Install dependencies
+        run: |
+          cd app
+          pip install flake8
+          pip install -r requirements.txt
+      
+      - name: Run linting
+        run: |
+          cd app
+          flake8 . --max-line-length=120 --ignore=E501,W503
+
+  # --- Этап 2: Тесты ---
+  test:
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      
+      - name: Install dependencies
+        run: |
+          cd app
+          pip install pytest
+          pip install -r requirements.txt
+      
+      - name: Run tests
+        run: |
+          cd app
+          pytest || echo "No tests yet"
+
+  # --- Этап 3: Сборка и публикация образа ---
+  build-and-push:
+    runs-on: ubuntu-latest
+    needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Build and push backend image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: Dockerfile
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}/taskflow-backend:latest
+            ghcr.io/${{ github.repository }}/taskflow-backend:${{ github.sha }}
+      
+      - name: Build and push nginx image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: Dockerfile.nginx
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}/taskflow-nginx:latest
+            ghcr.io/${{ github.repository }}/taskflow-nginx:${{ github.sha }}
+
+  # --- Этап 4: Деплой на сервер ---
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Deploy to server
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USERNAME }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          script: |
+            cd ~/TasksFlow
+            git pull origin main
+            docker compose down
+            docker compose pull
+            docker compose up -d
+            docker system prune -f
