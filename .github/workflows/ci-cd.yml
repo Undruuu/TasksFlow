@@ -57,10 +57,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
-      - name: Set lowercase repository name
-        id: repo_name
+      - name: Set lowercase username
+        id: username
         run: |
-          echo "LOWERCASE_REPO=$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
+          echo "LOWERCASE_USER=$(echo '${{ github.actor }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
       
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -79,8 +79,8 @@ jobs:
           file: Dockerfile
           push: true
           tags: |
-            ghcr.io/${{ steps.repo_name.outputs.LOWERCASE_REPO }}/taskflow-backend:latest
-            ghcr.io/${{ steps.repo_name.outputs.LOWERCASE_REPO }}/taskflow-backend:${{ github.sha }}
+            ghcr.io/${{ steps.username.outputs.LOWERCASE_USER }}/taskflow-backend:latest
+            ghcr.io/${{ steps.username.outputs.LOWERCASE_USER }}/taskflow-backend:${{ github.sha }}
       
       - name: Build and push nginx image
         uses: docker/build-push-action@v5
@@ -89,8 +89,8 @@ jobs:
           file: Dockerfile.nginx
           push: true
           tags: |
-            ghcr.io/${{ steps.repo_name.outputs.LOWERCASE_REPO }}/taskflow-nginx:latest
-            ghcr.io/${{ steps.repo_name.outputs.LOWERCASE_REPO }}/taskflow-nginx:${{ github.sha }}
+            ghcr.io/${{ steps.username.outputs.LOWERCASE_USER }}/taskflow-nginx:latest
+            ghcr.io/${{ steps.username.outputs.LOWERCASE_USER }}/taskflow-nginx:${{ github.sha }}
 
   deploy:
     runs-on: ubuntu-latest
@@ -100,10 +100,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
-      - name: Set lowercase repository name
-        id: repo_name
+      - name: Set lowercase username
+        id: username
         run: |
-          echo "LOWERCASE_REPO=$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
+          echo "LOWERCASE_USER=$(echo '${{ github.actor }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
       
       - name: Deploy to server
         uses: appleboy/ssh-action@v1.0.3
